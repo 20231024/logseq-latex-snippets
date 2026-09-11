@@ -22,4 +22,4 @@ https://github.com/user-attachments/assets/eaaa2f2b-76db-406f-915f-64a267bfe122
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.# logseq-latex-snippets
