@@ -472,13 +472,25 @@ async function keydownHandler(e) {
     if (e.key === "Tab" && !e.shiftKey) {
         const before = textarea.value.substring(0, textarea.selectionStart);
 
-        // Inside a matrix/align-like environment, Tab inserts the column separator "&".
         if (isInLatex(before) !== NOT_IN_MATH) {
+            // Inside a matrix/align-like environment, Tab inserts the column separator "&".
             const env = currentEnvironment(before);
             if (env != null && ROW_ENVIRONMENT_PATTERN.test(env)) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 await insertAtCursor(textarea, e, " & ");
+                return;
+            }
+
+            // Otherwise jump to the next empty placeholder "{}" inside the current math block.
+            const mathEnd = findMathEnd(textarea.value, textarea.selectionStart);
+            const searchEnd = mathEnd >= 0 ? mathEnd : textarea.value.length;
+            const rel = textarea.value.substring(textarea.selectionStart, searchEnd).indexOf("{}");
+            if (rel >= 0) {
+                const placeholder = textarea.selectionStart + rel + 1;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                textarea.setSelectionRange(placeholder, placeholder);
                 return;
             }
         }
