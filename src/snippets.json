@@ -1,4 +1,17 @@
 {
+  "textmode": [
+    {
+      "match": "(?<![a-zA-Z])mk",
+      "replacement": "$@$",
+      "mode": "text"
+    },
+    {
+      "match": "(?<![a-zA-Z])dm",
+      "replacement": "$$\n@\n$$",
+      "mode": "text"
+    }
+  ],
+
   "fonts": [
     {
       "match": "(?<![a-zA-Z])(cal|scr|frak|bb|bf|rm)(.+)",
