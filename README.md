@@ -74,7 +74,7 @@ If `snippets.js` is absent, `snippets.json` is used instead. Each snippet belong
 - Inside `matrix`/`pmatrix`/`bmatrix`/`cases`/`align`/`array`/… environments:
   - **Enter** inserts ` \\` and a newline (new row)
   - **Tab** inserts ` &` (next column)
-- Elsewhere in math, **Tab** moves the cursor past the closing `$` / `$$`.
+- Elsewhere in math, **Tab** moves the cursor out of the current `{...}` (and steps into the next group when it directly follows, e.g. `\frac{}{}` numerator → denominator), then to the next empty `{}`, and finally past the closing `$` / `$$`.
 - Outside math, Enter and Tab keep Logseq's default behaviour.
 
 ### Settings

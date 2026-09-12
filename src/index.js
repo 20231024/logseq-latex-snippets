@@ -441,6 +441,34 @@ function findMathEnd(text, cursorPos) {
     return -1;
 }
 
+function enclosingBraceClose(text, cursorPos) {
+    // Return the index of the "}" that closes the innermost "{" the cursor is inside, or -1.
+    let depth = 0;
+    let open = -1;
+    for (let i = cursorPos - 1; i >= 0; i--) {
+        const c = text[i];
+        if (c === "\\") { i--; continue; } // Skip escaped characters such as "\{".
+        if (c === "}") depth++;
+        else if (c === "{") {
+            if (depth === 0) { open = i; break; }
+            depth--;
+        }
+    }
+    if (open < 0) return -1;
+
+    let d = 0;
+    for (let i = open; i < text.length; i++) {
+        const c = text[i];
+        if (c === "\\") { i++; continue; }
+        if (c === "{") d++;
+        else if (c === "}") {
+            d--;
+            if (d === 0) return i;
+        }
+    }
+    return -1;
+}
+
 async function keydownHandler(e) {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.target.nodeName !== "TEXTAREA" || !e.target.parentElement || !e.target.parentElement.classList.contains("block-editor")) return;
@@ -479,6 +507,17 @@ async function keydownHandler(e) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 await insertAtCursor(textarea, e, " & ");
+                return;
+            }
+
+            // Move out of the innermost "{...}" the cursor is inside.
+            const close = enclosingBraceClose(textarea.value, textarea.selectionStart);
+            if (close >= textarea.selectionStart) {
+                let pos = close + 1;
+                if (textarea.value[pos] === "{") pos++; // Step into the following group.
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                textarea.setSelectionRange(pos, pos);
                 return;
             }
 
