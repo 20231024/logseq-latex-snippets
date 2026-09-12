@@ -469,6 +469,38 @@ function enclosingBraceClose(text, cursorPos) {
     return -1;
 }
 
+function dollarPairDeletionRange(text, pos, key) {
+    // Deleting one "$$" delimiter of a display math block should delete its pair too.
+    let start = -1;
+    if (key === "Backspace" && text.substring(pos - 2, pos) === "$$") start = pos - 2;
+    else if (key === "Delete" && text.substring(pos, pos + 2) === "$$") start = pos;
+    if (start < 0) return null;
+
+    // Non-overlapping "$$" delimiter positions.
+    const positions = [];
+    let i = 0;
+    while (i < text.length - 1) {
+        if (text[i] === "$" && text[i + 1] === "$") {
+            positions.push(i);
+            i += 2;
+        } else {
+            i++;
+        }
+    }
+
+    const idx = positions.indexOf(start);
+    if (idx < 0) return null;
+    const other = positions[idx % 2 === 0 ? idx + 1 : idx - 1];
+    if (other == null) return null;
+
+    const a = Math.min(start, other);
+    const b = Math.max(start, other);
+    return {
+        newContent: text.substring(0, a) + text.substring(a + 2, b) + text.substring(b + 2),
+        cursor: a,
+    };
+}
+
 async function keydownHandler(e) {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.target.nodeName !== "TEXTAREA" || !e.target.parentElement || !e.target.parentElement.classList.contains("block-editor")) return;
@@ -541,6 +573,17 @@ async function keydownHandler(e) {
         e.preventDefault();
         e.stopImmediatePropagation(); // Prevent Logseq's editor from also handling the Tab (indenting the block).
         textarea.setSelectionRange(pos, pos);
+        return;
+    }
+
+    if ((e.key === "Backspace" || e.key === "Delete") && !e.shiftKey && textarea.selectionStart === textarea.selectionEnd) {
+        // Keep the "$$" display math delimiters paired when deleting one of them.
+        const range = dollarPairDeletionRange(textarea.value, textarea.selectionStart, e.key);
+        if (range != null) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            await updateText(textarea, getBlockUUID(e.target), range.newContent, -textarea.selectionStart, 0, range.cursor - range.newContent.length);
+        }
     }
 }
 
