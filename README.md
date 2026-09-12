@@ -13,6 +13,11 @@ LaTeX snippets for Logseq, compatible with the [Obsidian Latex Suite](https://gi
 - **Tab in matrix/align environments** inserts a column separator ` &`; elsewhere in math it jumps past the closing `$` / `$$`
 - Automatically pair up dollar signs and wrap selected text with `$...$`
 
+
+
+https://github.com/user-attachments/assets/0d958f26-b8c4-4732-9077-986cfa2652b2
+
+
 ## Usage
 
 ### Snippet file
